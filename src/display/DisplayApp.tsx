@@ -22,7 +22,7 @@ export function DisplayApp() {
 
   const playAlarm = () => {
     if (!alarmRef.current) {
-      alarmRef.current = new Audio('/alarm-beep.wav');
+      alarmRef.current = new Audio('/alarm-beep.mp3');
       alarmRef.current.loop = true;
     }
     alarmRef.current.play();
@@ -85,7 +85,7 @@ export function DisplayApp() {
   };
 
   return (
-    <div className="font-sans text-[20rem] font-bold bg-[#1a1a1a] py-8 px-40 rounded-[10rem] text-white [text-shadow:2px_2px_8px_rgba(0,0,0,0.8)] tracking-[0.05em]">
+    <div className="font-sans text-[20rem] text-center font-bold bg-[#1a1a1a] py-8 px-40 rounded-[10rem] text-white [text-shadow:2px_2px_8px_rgba(0,0,0,0.8)] tracking-[0.05em]">
       <div ref={timeRef}>00:00:00</div>
     </div>
   );

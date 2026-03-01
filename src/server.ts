@@ -8,7 +8,7 @@ const server = serve<{ room: string }>({
     '/': Response.redirect('/control'),
     '/control': controlHtml,
     '/display': displayHtml,
-    '/alarm-beep.wav': () => new Response(Bun.file('./assets/alarm-beep.wav')),
+    '/alarm-beep.mp3': () => new Response(Bun.file('./assets/alarm-beep.mp3')),
     '/ws': (req: Request, server: Server<{ room: string }>) => {
       const url = new URL(req.url);
       const user = url.searchParams.get('user') || 'default';
