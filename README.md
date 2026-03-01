@@ -1,4 +1,4 @@
-# fuyu3n-timer
+# countdown-timer [VIBE CODE]
 
 Countdown Timer แบบ real-time ที่ใช้ WebSocket ในการซิงค์เวลาระหว่างหน้า Control และหน้า Display
 เหมาะสำหรับใช้ในงาน Streaming, Presentation หรืองานที่ต้องการแสดงเวลานับถอยหลังบนหน้าจอแยกต่างหาก
