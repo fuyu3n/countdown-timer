@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import '../styles/global.css';
 import { connectTimerSocket } from '../shared/timerSocket';
+import { StatusDot } from '../shared/StatusDot';
 
 export function ControlApp() {
   const ws = useRef<ReturnType<typeof connectTimerSocket> | null>(null);
@@ -10,11 +11,19 @@ export function ControlApp() {
   const targetTime = useRef(0);
   const remainingMs = useRef(0);
   const isRunning = useRef(false);
+  const [online, setOnline] = useState(false);
+  const [peerOnline, setPeerOnline] = useState(false);
 
   const user = new URLSearchParams(window.location.search).get('user') || 'default';
 
   useEffect(() => {
-    ws.current = connectTimerSocket(user, () => {});
+    ws.current = connectTimerSocket(user, 'control', {
+      onStatus: (connected) => {
+        setOnline(connected);
+        if (!connected) setPeerOnline(false);
+      },
+      onPresence: (p) => setPeerOnline(p.display > 0),
+    });
     return () => ws.current?.close();
   }, []);
 
@@ -59,7 +68,8 @@ export function ControlApp() {
     `flex-1 py-2.5 rounded-lg border-0 ${bg} text-white font-bold text-[0.95rem] cursor-pointer`;
 
   return (
-    <div className="w-[300px] p-6 font-sans box-border bg-[#2a2a2a] rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+    <div className="relative w-[300px] p-6 font-sans box-border bg-[#2a2a2a] rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+      <StatusDot connected={online && peerOnline} peerName="Display" className="top-4 right-4 size-2" />
       <h2 className="m-0 mb-1 text-[1.1rem] text-[#aaa] text-center tracking-widest">COUNTDOWN TIMER</h2>
       <p className="m-0 mb-5 text-xs text-[#555] text-center tracking-[0.05em]">
         user: <span className="text-[#888]">{user}</span>

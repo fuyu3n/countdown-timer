@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '../styles/global.css';
 import { connectTimerSocket } from '../shared/timerSocket';
+import { StatusDot } from '../shared/StatusDot';
 
 export function DisplayApp() {
   const timeRef = useRef<HTMLDivElement>(null);
@@ -9,6 +10,8 @@ export function DisplayApp() {
   const targetTime = useRef(0);
   const alarmRef = useRef<HTMLAudioElement | null>(null);
   const alarmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [online, setOnline] = useState(false);
+  const [peerOnline, setPeerOnline] = useState(false);
 
   const stopAlarm = () => {
     if (alarmTimerRef.current) {
@@ -33,24 +36,31 @@ export function DisplayApp() {
   const user = new URLSearchParams(window.location.search).get('user') || 'default';
 
   useEffect(() => {
-    const ws = connectTimerSocket(user, (data) => {
-      if (data.action === 'START') {
-        targetTime.current = data.targetTime;
-        isRunning.current = true;
-        stopAlarm();
-        cancelAnimationFrame(reqRef.current);
-        reqRef.current = requestAnimationFrame(tick);
-      } else if (data.action === 'STOP') {
-        isRunning.current = false;
-        cancelAnimationFrame(reqRef.current);
-        stopAlarm();
-        renderTime(data.remainingMs);
-      } else if (data.action === 'RESET') {
-        isRunning.current = false;
-        cancelAnimationFrame(reqRef.current);
-        stopAlarm();
-        renderTime(data.totalMs);
-      }
+    const ws = connectTimerSocket(user, 'display', {
+      onStatus: (connected) => {
+        setOnline(connected);
+        if (!connected) setPeerOnline(false);
+      },
+      onPresence: (p) => setPeerOnline(p.control > 0),
+      onMessage: (data) => {
+        if (data.action === 'START') {
+          targetTime.current = data.targetTime;
+          isRunning.current = true;
+          stopAlarm();
+          cancelAnimationFrame(reqRef.current);
+          reqRef.current = requestAnimationFrame(tick);
+        } else if (data.action === 'STOP') {
+          isRunning.current = false;
+          cancelAnimationFrame(reqRef.current);
+          stopAlarm();
+          renderTime(data.remainingMs);
+        } else if (data.action === 'RESET') {
+          isRunning.current = false;
+          cancelAnimationFrame(reqRef.current);
+          stopAlarm();
+          renderTime(data.totalMs);
+        }
+      },
     });
 
     return () => {
@@ -82,7 +92,8 @@ export function DisplayApp() {
   };
 
   return (
-    <div className="font-sans text-[20rem] text-center font-bold bg-[#1a1a1a] py-8 px-40 rounded-[10rem] text-white [text-shadow:2px_2px_8px_rgba(0,0,0,0.8)] tracking-[0.05em]">
+    <div className="relative font-sans text-[20rem] text-center font-bold bg-[#1a1a1a] py-8 px-40 rounded-[10rem] text-white [text-shadow:2px_2px_8px_rgba(0,0,0,0.8)] tracking-[0.05em]">
+      <StatusDot connected={online && peerOnline} peerName="Control" className="top-10 right-40 size-5" />
       <div ref={timeRef}>00:00:00</div>
     </div>
   );
