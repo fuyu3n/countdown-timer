@@ -13,7 +13,7 @@ export function ControlApp() {
   const user = new URLSearchParams(window.location.search).get('user') || 'default';
 
   useEffect(() => {
-    ws.current = new WebSocket(`wss://alarm.fuyu3n.com/ws?user=${encodeURIComponent(user)}`);
+    ws.current = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws?user=${encodeURIComponent(user)}`);
     return () => ws.current?.close();
   }, []);
 

@@ -32,7 +32,7 @@ export function DisplayApp() {
   const user = new URLSearchParams(window.location.search).get('user') || 'default';
 
   useEffect(() => {
-    const ws = new WebSocket(`wss://alarm.fuyu3n.com/ws?user=${encodeURIComponent(user)}`);
+    const ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws?user=${encodeURIComponent(user)}`);
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
