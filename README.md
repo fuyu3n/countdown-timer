@@ -73,13 +73,12 @@ bun dev
 bun start
 ```
 
-เซิร์ฟเวอร์จะรันที่ `http://localhost:3030`
+เซิร์ฟเวอร์จะรันที่ `http://localhost:3030` (เปลี่ยนได้ด้วย env `PORT`)
 
-### รันด้วย PM2 (สำหรับ deploy บนเซิร์ฟเวอร์)
+### Deploy บน Railway
 
-```bash
-pm2 start ecosystem.config.cjs
-```
+Deploy จาก GitHub branch `main` อัตโนมัติ ตั้ง env `PORT=3030` และเปิด Serverless (App Sleeping) ไว้
+service จะหลับเมื่อไม่มี traffic ประมาณ 10 นาที และตื่นเมื่อมี request เข้ามา (request แรกจะช้ากว่าปกติ)
 
 ---
 
@@ -88,4 +87,4 @@ pm2 start ecosystem.config.cjs
 - **Runtime**: [Bun](https://bun.sh)
 - **Frontend**: React 19 + Tailwind CSS v4
 - **Real-time**: WebSocket (Bun built-in)
-- **Process Manager**: PM2 (optional)
+- **Hosting**: Railway (Serverless)

@@ -3,7 +3,7 @@ import controlHtml from './control/control.html';
 import displayHtml from './display/display.html';
 
 const server = serve<{ room: string }>({
-  port: 3030,
+  port: Number(process.env.PORT) || 3030,
   routes: {
     '/': Response.redirect('/control'),
     '/control': controlHtml,
@@ -23,6 +23,7 @@ const server = serve<{ room: string }>({
       ws.subscribe(ws.data.room);
     },
     message(ws, message) {
+      if (message === 'ping') return void ws.send('pong'); // heartbeat กัน serverless หลับ
       server.publish(ws.data.room, message); // กระจายคำสั่งเฉพาะ room ของ user นั้น
     },
     close(ws) {

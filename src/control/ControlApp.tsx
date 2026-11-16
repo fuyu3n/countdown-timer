@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import '../styles/global.css';
+import { connectTimerSocket } from '../shared/timerSocket';
 
 export function ControlApp() {
-  const ws = useRef<WebSocket | null>(null);
+  const ws = useRef<ReturnType<typeof connectTimerSocket> | null>(null);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
@@ -13,14 +14,11 @@ export function ControlApp() {
   const user = new URLSearchParams(window.location.search).get('user') || 'default';
 
   useEffect(() => {
-    ws.current = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws?user=${encodeURIComponent(user)}`);
+    ws.current = connectTimerSocket(user, () => {});
     return () => ws.current?.close();
   }, []);
 
-  const send = (data: object) => {
-    if (!ws.current || ws.current.readyState !== WebSocket.OPEN) return;
-    ws.current.send(JSON.stringify(data));
-  };
+  const send = (data: object) => ws.current?.send(data);
 
   const getTotalMs = () => (hours * 3600 + minutes * 60 + seconds) * 1000;
 

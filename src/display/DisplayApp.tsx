@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import '../styles/global.css';
+import { connectTimerSocket } from '../shared/timerSocket';
 
 export function DisplayApp() {
   const timeRef = useRef<HTMLDivElement>(null);
@@ -32,11 +33,7 @@ export function DisplayApp() {
   const user = new URLSearchParams(window.location.search).get('user') || 'default';
 
   useEffect(() => {
-    const ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws?user=${encodeURIComponent(user)}`);
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
+    const ws = connectTimerSocket(user, (data) => {
       if (data.action === 'START') {
         targetTime.current = data.targetTime;
         isRunning.current = true;
@@ -54,7 +51,7 @@ export function DisplayApp() {
         stopAlarm();
         renderTime(data.totalMs);
       }
-    };
+    });
 
     return () => {
       ws.close();
